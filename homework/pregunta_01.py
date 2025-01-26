@@ -6,8 +6,8 @@ Escriba el codigo que ejecute la accion solicitada en cada pregunta.
 """
 
 
-def pregunta_01():
-    """
+
+"""
     La información requerida para este laboratio esta almacenada en el
     archivo "files/input.zip" ubicado en la carpeta raíz.
     Descomprima este archivo.
@@ -71,3 +71,46 @@ def pregunta_01():
 
 
     """
+
+import os
+import pandas as pd
+
+def pregunta_01():
+    # Crear el directorio output si no existe
+    os.makedirs("./files/output", exist_ok=True)
+    
+    # Función para procesar un directorio específico (train o test)
+    def process_directory(base_path):
+        data = []
+        
+        # Recorrer las carpetas de sentimientos
+        for sentiment in ['negative', 'neutral', 'positive']:
+            sentiment_path = os.path.join(base_path, sentiment)
+            
+            # Leer cada archivo .txt en el directorio
+            for filename in os.listdir(sentiment_path):
+                if filename.endswith('.txt'):
+                    file_path = os.path.join(sentiment_path, filename)
+                    
+                    # Leer el contenido del archivo
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        phrase = file.read().strip()
+                        
+                    # Agregar la frase y el sentimiento a los datos
+                    data.append({
+                        'phrase': phrase,
+                        'target': sentiment
+                    })
+        
+        # Crear DataFrame y ordenar por el índice
+        return pd.DataFrame(data).reset_index(drop=True)
+    
+    # Procesar directorios train y test
+    train_df = process_directory('files/input/train')
+    test_df = process_directory('files/input/test')
+    
+    # Guardar los DataFrames como CSV
+    train_df.to_csv('files/output/train_dataset.csv', index=False)
+    test_df.to_csv('files/output/test_dataset.csv', index=False)
+
+pregunta_01()
